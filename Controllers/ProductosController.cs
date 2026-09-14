@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SistemaVentasAPI.Models;
 using SistemaVentasAPI.DTOs;
-using SistemaVentasAPI.Services;
+using SistemaVentasAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace SistemaVentasAPI.Controllers
 {
@@ -13,42 +14,63 @@ namespace SistemaVentasAPI.Controllers
     [Route("api/[controller]")]
     public class ProductosController : ControllerBase
     {
-        private readonly ProductoService _productoService;
-        public ProductosController(ProductoService productoService)
-        {
-            this._productoService = productoService;
 
+        private readonly AppDbContext _context;
+        public ProductosController(AppDbContext context)
+        {
+            this._context = context;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Producto>> GetProductos()
+        public async Task<ActionResult<IEnumerable<ProductoResponse>>> GetProductos()
         {
-            return Ok(_productoService.Productos);
+            var productos = await _context.Productos
+            .AsNoTracking()
+            .ToListAsync();
+
+            var respose = productos.Select(p => new ProductoResponse
+            {
+                Id = p.Id,
+                Nombre = p.Nombre,
+                Precio = p.Precio,
+                Stock = p.Stock
+            });
+            return Ok(respose);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Producto> GetProducto(int id)
+        public async Task<ActionResult<ProductoResponse>> GetProducto(int id)
         {
-            var producto = _productoService.Productos.FirstOrDefault(p => p.Id == id);
+            var producto = await _context.Productos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == id);
             if (producto == null)
             {
                 return NotFound();
             }
-            return Ok(producto);
+            var response = new ProductoResponse
+            {
+                Id = producto.Id,
+                Nombre = producto.Nombre,
+                Precio = producto.Precio,
+                Stock = producto.Stock
+            };
+            return Ok(response);
         }
 
         [HttpPost]
-        public ActionResult<Producto> CrearProducto(ProductoRequest request)
+        public async Task<ActionResult<ProductoResponse>> CrearProducto(ProductoRequest request)
         {
             var producto = new Producto
             {
-                Id = _productoService.Productos.Max(p => p.Id) + 1,
                 Nombre = request.Nombre,
                 Precio = request.Precio,
                 Stock = request.Stock
             };
 
-            _productoService.Productos.Add(producto);
+            _context.Productos.Add(producto);
+            await _context.SaveChangesAsync();
+
             var response = new ProductoResponse
             {
                 Id = producto.Id,
@@ -58,35 +80,63 @@ namespace SistemaVentasAPI.Controllers
             };
 
             return CreatedAtAction(
-             nameof(GetProducto),
-             new { id = producto.Id },
-             response);
+                nameof(GetProducto),
+                new { id = producto.Id }, response);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Producto> ActualizarProducto(int id, Producto producto)
+        public async Task<ActionResult<ProductoResponse>> ActualizarProducto(int id, ProductoRequest request)
         {
-            var productoExistente = _productoService.Productos.FirstOrDefault(p => p.Id == id);
-            if (productoExistente == null)
-            {
-                return NotFound();
-            }
-            productoExistente.Nombre = producto.Nombre;
-            productoExistente.Precio = producto.Precio;
-            productoExistente.Stock = producto.Stock;
-            return Ok(productoExistente);
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult EliminaProducto(int id)
-        {
-            var producto = _productoService.Productos.FirstOrDefault(p => p.Id == id);
+            var producto = await _context.Productos.FindAsync(id);
             if (producto == null)
             {
                 return NotFound();
             }
-            _productoService.Productos.Remove(producto);
+            producto.Nombre = request.Nombre;
+            producto.Precio = request.Precio;
+            producto.Stock = request.Stock;
+
+            await _context.SaveChangesAsync();
+
+            var response = new ProductoResponse
+            {
+                Id = producto.Id,
+                Nombre = producto.Nombre,
+                Precio = producto.Precio,
+                Stock = producto.Stock
+            };
+            return Ok(response);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> EliminarProducto(int id)
+        {
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+            _context.Productos.Remove(producto);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

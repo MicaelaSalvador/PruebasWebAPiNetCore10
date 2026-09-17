@@ -2,16 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
 
 namespace SistemaVentasAPI.Models
 {
-    public class Producto
+    public class Pedido
     {
         public int Id { get; set; }
-        public string Nombre { get; set; } = string.Empty;
-        public decimal Precio { get; set; }
-        public int Stock { get; set; }
+        public DateTime Fecha { get; set; }
+        public int ClienteId { get; set; }
+        public Cliente Cliente { get; set; } = null;
         public ICollection<DetallePedido> Detalles { get; set; } = new List<DetallePedido>();
     }
 }

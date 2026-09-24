@@ -31,9 +31,6 @@ C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\obj\Debug\net10.
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\obj\Debug\net10.0\SistemaVentasAPI.pdb
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\obj\Debug\net10.0\SistemaVentasAPI.genruntimeconfig.cache
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\obj\Debug\net10.0\ref\SistemaVentasAPI.dll
-C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
-C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\obj\Debug\net10.0\SistemaVentasAPI.sourcelink.json
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\Azure.Core.dll
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\Azure.Identity.dll
@@ -167,3 +164,4 @@ C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\runtimes\win-arm64\native\msalruntime_arm64.dll
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\runtimes\win-x64\native\msalruntime.dll
 C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\runtimes\win-x86\native\msalruntime_x86.dll
+C:\Users\ATUF FX505GT\Desktop\Proyects\NetCore\SistemaVentasAPI\bin\Debug\net10.0\Scalar.AspNetCore.dll

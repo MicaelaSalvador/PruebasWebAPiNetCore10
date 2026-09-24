@@ -17,9 +17,6 @@ namespace SistemaVentasAPI.Controllers
     [Route("api/[controller]")]
     public class PedidosController : ControllerBase
     {
-
-
-
         private readonly IPedidoService _pedidoService;
 
         public PedidosController(IPedidoService pedidoService)
@@ -31,21 +28,10 @@ namespace SistemaVentasAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<PedidoResponse>> CrearPedido(PedidoRequest request)
         {
-            try
-            {
-                var respose = await _pedidoService.CrearPedidoAsync(request);
-                return CreatedAtAction(
-                    nameof(GetPedido),
-                    new { id = respose.Id },
-                    respose);
-            }
-            catch (BusinessException ex)
-            {
-                return BadRequest(new
-                {
-                    mensaje = ex.Message
-                });
-            }
+            var response = await _pedidoService.CrearPedidoAsync(request);
+            return CreatedAtAction(
+             nameof(GetPedido),
+             new { id = response.Id }, response);
         }
 
         [HttpGet("{id}")]

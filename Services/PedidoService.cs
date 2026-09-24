@@ -35,6 +35,8 @@ namespace SistemaVentasAPI.Services
                     throw new BusinessException(
                         "El cliente no existe.");
                 }
+
+                // 2. Obtener los productos solicitados
                 var productoIds = request.Detalles
                 .Select(d => d.ProductoId)
                 .Distinct()
@@ -81,18 +83,22 @@ namespace SistemaVentasAPI.Services
                         PrecioUnitario = producto.Precio
                     };
                     pedido.Detalles.Add(detalle);
+
                     // 7.  Descontar stock
                     producto.Stock -= detalleRequest.Cantidad;
                 }
                 // 8.Agregar el pedido
                 _context.Pedidos.Add(pedido);
+
                 // 9.Guardar cambios
                 await _context.SaveChangesAsync();
 
                 //10. Confirmar transaccion 
                 await transaction.CommitAsync();
+
                 // 11. Calcular total
                 var total = pedido.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
+
                 // 12. Crear respuesta
                 var response = new PedidoResponse
                 {

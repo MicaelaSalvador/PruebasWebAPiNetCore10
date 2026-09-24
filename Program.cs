@@ -3,6 +3,7 @@ using SistemaVentasAPI.Data;
 using Microsoft.Extensions.Options;
 using SistemaVentasAPI.Services;
 using SistemaVentasAPI.Services.Interfaces;
+using SistemaVentasAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddScoped<IPedidoService, PedidoService>();
 //builder.Services.AddOpenApi();
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

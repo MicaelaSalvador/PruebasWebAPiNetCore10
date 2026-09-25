@@ -7,33 +7,35 @@ using SistemaVentasAPI.Data;
 using SistemaVentasAPI.DTOs;
 using SistemaVentasAPI.Exceptions;
 using SistemaVentasAPI.Models;
+using SistemaVentasAPI.Repositories.Interfaces;
 using SistemaVentasAPI.Services.Interfaces;
 
 namespace SistemaVentasAPI.Services
 {
     public class PedidoService : IPedidoService
     {
-        private readonly AppDbContext _context;
         private readonly ILogger<PedidoService> _logger;
-
-        public PedidoService(AppDbContext context, ILogger<PedidoService> logger)
+        private readonly IUnitOfWork _unitOfWork;
+        public PedidoService(IUnitOfWork unitOfWork, ILogger<PedidoService> logger)
         {
-            this._context = context;
+            this._unitOfWork = unitOfWork;
             this._logger = logger;
         }
         public async Task<PedidoResponse> CrearPedidoAsync(PedidoRequest request)
         {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            // await using var transaction = await AppDbContext.Database.BeginTransactionAsync();
             _logger.LogInformation("Creando pedido por el cliente {ClienteId}", request.ClienteId);
+            await _unitOfWork.BeginTransactionAsync();
 
             try
             {
                 // 1. Verificar que el cliente existe
-                var cliente = await _context.Clientes
-                .FirstOrDefaultAsync(c => c.Id == request.ClienteId);
+
+                var cliente = await _unitOfWork.Clientes.ObtenerPorIdAsync(request.ClienteId);
 
                 if (cliente == null)
                 {
+                    _logger.LogWarning("Intento de crear pedido para cliente inexistente : {ClienteId}", request.ClienteId);
                     throw new BusinessException(
                         "El cliente no existe.");
                 }
@@ -44,13 +46,13 @@ namespace SistemaVentasAPI.Services
                 .Distinct()
                 .ToList();
 
-                var productos = await _context.Productos
-                .Where(p => productoIds.Contains(p.Id))
-                .ToListAsync();
+                var productos = await _unitOfWork.Productos.ObtenerPorIdsAsync(productoIds);
+
 
                 // 3. Verificar que todos los productos existen.
                 if (productos.Count != productoIds.Count)
                 {
+                    _logger.LogWarning("El pedido contiene productos inexistentes .");
                     throw new BusinessException("Uno o más productos no existen");
                 }
 
@@ -60,6 +62,7 @@ namespace SistemaVentasAPI.Services
                     var producto = productos.First(p => p.Id == detalleRequest.ProductoId);
                     if (producto.Stock < detalleRequest.Cantidad)
                     {
+                        _logger.LogWarning("Stock bajo para el producto {ProductoId}: {Stock}", producto.Id, producto.Stock);
                         throw new BusinessException($"stock insuficiente para el producto: {producto.Nombre}");
                     }
                 }
@@ -71,39 +74,37 @@ namespace SistemaVentasAPI.Services
                     ClienteId = cliente.Id
                 };
 
-                //6.Crear los detalles
+                //6 y7 Crear los detalles y descontar stock
                 foreach (var detalleRequest in request.Detalles)
                 {
                     var producto = productos.First(
                         p => p.Id == detalleRequest.ProductoId
                     );
 
-                    var detalle = new DetallePedido
+                    pedido.Detalles.Add(new DetallePedido
                     {
                         ProductoId = producto.Id,
                         Cantidad = detalleRequest.Cantidad,
                         PrecioUnitario = producto.Precio
-                    };
-                    pedido.Detalles.Add(detalle);
+                    });
 
-                    // 7.  Descontar stock
                     producto.Stock -= detalleRequest.Cantidad;
                 }
                 // 8.Agregar el pedido
-                _context.Pedidos.Add(pedido);
+                await _unitOfWork.Pedidos.AgregarAsync(pedido);
 
                 // 9.Guardar cambios
-                await _context.SaveChangesAsync();
+                await _unitOfWork.GuardarCambiosAsync();
 
-                //10. Confirmar transaccion 
-                await transaction.CommitAsync();
 
-                // 11. Calcular total
+                //10. Commit
+                await _unitOfWork.CommitAsync();
+                _logger.LogInformation("Pedido {PedidoId} creado correctamente", pedido.Id);
+
+                // 11. Construir respuesta
                 var total = pedido.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
 
-
-                // 12. Crear respuesta
-                var response = new PedidoResponse
+                return new PedidoResponse
                 {
                     Id = pedido.Id,
                     Fecha = pedido.Fecha,
@@ -125,35 +126,25 @@ namespace SistemaVentasAPI.Services
 
                     }).ToList()
                 };
-                // 13. Log de éxito
-
-                _logger.LogInformation("Pedido {PedidoId} creado correctamente", pedido.Id);
-
-                return response;
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error al crear pedido para el cliente {ClienteId}", request.ClienteId);
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }
 
         public async Task<PedidoResponse?> ObtenerPedidoAsync(int id)
         {
-            var pedido = await _context.Pedidos
-            .AsNoTracking()
-            .Include(p => p.Cliente)
-            .Include(p => p.Detalles)
-                .ThenInclude(d => d.Producto)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            var pedido = await _unitOfWork.Pedidos.ObtenerPorIdAsync(id);
 
             if (pedido == null)
             {
                 return null;
             }
 
-
-            var response = new PedidoResponse
+            return new PedidoResponse
             {
                 Id = pedido.Id,
                 Fecha = pedido.Fecha,
@@ -176,7 +167,11 @@ namespace SistemaVentasAPI.Services
                     .ToList()
             };
 
-            return response;
         }
     }
 }
+
+
+
+
+

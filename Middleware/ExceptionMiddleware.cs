@@ -64,7 +64,6 @@ namespace SistemaVentasAPI.Middleware
 
             await context.Response.WriteAsync(json);
         }
-
     }
 }
 

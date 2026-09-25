@@ -14,15 +14,17 @@ namespace SistemaVentasAPI.Services
     public class PedidoService : IPedidoService
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<PedidoService> _logger;
 
-        public PedidoService(AppDbContext context)
+        public PedidoService(AppDbContext context, ILogger<PedidoService> logger)
         {
             this._context = context;
-
+            this._logger = logger;
         }
         public async Task<PedidoResponse> CrearPedidoAsync(PedidoRequest request)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
+            _logger.LogInformation("Creando pedido por el cliente {ClienteId}", request.ClienteId);
 
             try
             {
@@ -99,6 +101,7 @@ namespace SistemaVentasAPI.Services
                 // 11. Calcular total
                 var total = pedido.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
 
+
                 // 12. Crear respuesta
                 var response = new PedidoResponse
                 {
@@ -122,6 +125,10 @@ namespace SistemaVentasAPI.Services
 
                     }).ToList()
                 };
+                // 13. Log de éxito
+
+                _logger.LogInformation("Pedido {PedidoId} creado correctamente", pedido.Id);
+
                 return response;
             }
             catch (Exception ex)
@@ -144,6 +151,7 @@ namespace SistemaVentasAPI.Services
             {
                 return null;
             }
+
 
             var response = new PedidoResponse
             {

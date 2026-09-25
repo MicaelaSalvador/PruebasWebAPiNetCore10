@@ -11,8 +11,10 @@ namespace SistemaVentasAPI.Middleware
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
-        public ExceptionMiddleware(RequestDelegate next)
+        private readonly ILogger<ExceptionMiddleware> _logger;
+        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
         {
+            this._logger = logger;
             this._next = next;
         }
 
@@ -28,6 +30,7 @@ namespace SistemaVentasAPI.Middleware
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "ocurrió un error no controlado");
                 await HandleExceptionAsync(context, ex);
             }
         }

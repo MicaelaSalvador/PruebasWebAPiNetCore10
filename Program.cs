@@ -5,6 +5,7 @@ using SistemaVentasAPI.Services.Interfaces;
 using SistemaVentasAPI.Middleware;
 using SistemaVentasAPI.Repositories;
 using SistemaVentasAPI.Repositories.Interfaces;
+using SistemaVentasAPI.Mappings;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
 
+// conexión a sql server
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -27,7 +29,14 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 //servicios
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IClienteService, ClienteService>();
 
+// AutoMapper
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingProfile>();
+});
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -16,6 +16,30 @@ namespace SistemaVentasAPI.Repositories
         {
             this._context = context;
         }
+        public async Task<List<Producto>> ObtenerTodosAsync()
+        {
+            return await _context.Productos
+            .AsNoTracking()
+            .ToListAsync();
+        }
+        public async Task<Producto?> ObtenerPorIdParaActualizarAsync(int id)
+        {
+            return await _context.Productos.FirstOrDefaultAsync(p => p.Id == id);
+        }
+        public async Task<Producto?> ObtenerPorIdAsync(int id)
+        {
+            return await _context.Productos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Producto?> ObtenerPorIdConDetallseAsync(int id)
+        {
+            return await _context.Productos
+            .Include(p => p.Detalles)
+            .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
         public async Task<List<Producto>> ObtenerPorIdsAsync(List<int> ids)
         {
             if (ids == null || ids.Count == 0)
@@ -25,6 +49,16 @@ namespace SistemaVentasAPI.Repositories
             .Where(p => ids.Contains(p.Id))
             .ToListAsync();
         }
+        public async Task AgregarAsync(Producto producto)
+        {
+            await _context.Productos.AddAsync(producto);
+        }
+
+        public void Eliminar(Producto producto)
+        {
+            _context.Productos.Remove(producto);
+        }
+
     }
 }
 

@@ -7,6 +7,9 @@ using SistemaVentasAPI.Repositories;
 using SistemaVentasAPI.Repositories.Interfaces;
 using SistemaVentasAPI.Mappings;
 using Scalar.AspNetCore;
+using FluentValidation;
+using SistemaVentasAPI.Validators;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +41,11 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<MappingProfile>();
 });
 
+// Validattors
+builder.Services.AddValidatorsFromAssemblyContaining<ProductoRequestValidator>();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
@@ -55,10 +63,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapControllers();
 
-app.MapGet("/", () =>
+/* app.MapGet("/", () =>
 {
     return "Sistema de Ventas API funcionando";
-});
+}); */
 
 app.Run();
 

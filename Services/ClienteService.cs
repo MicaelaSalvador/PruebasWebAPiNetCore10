@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using SistemaVentasAPI.DTOs;
+using SistemaVentasAPI.DTOs.Pagination;
 using SistemaVentasAPI.Exceptions;
 using SistemaVentasAPI.Models;
 using SistemaVentasAPI.Repositories.Interfaces;
@@ -88,8 +89,39 @@ namespace SistemaVentasAPI.Services
 
             return response;
         }
+        public async Task<PagedResponse<ClienteResponse>> ObtenerPaginadosAsync(ClienteQueryParameters parameters)
+        {
+            var (items, totalItems) = await _unitOfWork.Clientes.ObtenerPaginadosAsync(parameters);
+            var response = new PagedResponse<ClienteResponse>
+            {
+                Items = _mapper.Map<IReadOnlyList<ClienteResponse>>(items),
+                Page = parameters.Page,
+                PageSize = parameters.PageSize,
+                TotalItems = totalItems,
+                TotalPages = (int)Math.Ceiling((double)totalItems / parameters.PageSize)
+            };
+            return response;
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

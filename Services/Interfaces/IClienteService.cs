@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SistemaVentasAPI.DTOs;
+using SistemaVentasAPI.DTOs.Pagination;
 using SistemaVentasAPI.Models;
 
 namespace SistemaVentasAPI.Services.Interfaces
@@ -14,6 +15,8 @@ namespace SistemaVentasAPI.Services.Interfaces
         Task<ClienteResponse> CrearAsync(ClienteRequest request);
         Task<ClienteResponse> ActualizarAsync(int id, ClienteRequest request);
         Task<ClienteResponse> ElimminarAsync(int id);
+
+        Task<PagedResponse<ClienteResponse>> ObtenerPaginadosAsync(ClienteQueryParameters parameters);
     }
 }
 

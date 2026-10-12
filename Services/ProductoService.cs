@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using SistemaVentasAPI.DTOs;
+using SistemaVentasAPI.DTOs.Pagination;
 using SistemaVentasAPI.Exceptions;
 using SistemaVentasAPI.Models;
 using SistemaVentasAPI.Repositories.Interfaces;
@@ -86,7 +87,22 @@ namespace SistemaVentasAPI.Services
             _logger.LogInformation("Producto eliminado. Id: {Id}, Nombre: {Nombre}", producto.Id, producto.Nombre);
 
             return response;
+        }
 
+        public async Task<PagedResponse<ProductoResponse>> ObtenerPaginadosAsync(ProductoQueryParameters parameters)
+        {
+            var (items, totalItems) = await _unitOfWork.Productos.ObtenerPaginadosAsync(parameters);
+
+            var response = new PagedResponse<ProductoResponse>
+            {
+                Items = _mapper.Map<IReadOnlyList<ProductoResponse>>(items),
+                Page = parameters.Page,
+                PageSize = parameters.PageSize,
+                TotalItems = totalItems,
+                TotalPages = (int)Math.Ceiling((double)totalItems / parameters.PageSize)
+            };
+
+            return response;
         }
     }
 }

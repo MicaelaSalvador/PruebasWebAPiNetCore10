@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SistemaVentasAPI.DTOs.Pagination;
 using SistemaVentasAPI.Models;
 
 namespace SistemaVentasAPI.Repositories.Interfaces
@@ -14,5 +15,16 @@ namespace SistemaVentasAPI.Repositories.Interfaces
         Task<Cliente?> ObtenerPorIdConPedidoAsync(int id);
         Task AgregarAsync(Cliente cliente);
         void Eliminar(Cliente cliente);
+        Task<(List<Cliente> Items, int TotalItems)> ObtenerPaginadosAsync(ClienteQueryParameters parameters);
     }
 }
+
+
+
+
+
+
+
+
+
+

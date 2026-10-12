@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaVentasAPI.Data;
 using SistemaVentasAPI.DTOs;
+using SistemaVentasAPI.DTOs.Pagination;
 using SistemaVentasAPI.Models;
 using SistemaVentasAPI.Services.Interfaces;
 
@@ -22,9 +23,9 @@ namespace SistemaVentasAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ClienteResponse>>> GetClientes()
+        public async Task<ActionResult<PagedResponse<ClienteResponse>>> GetClientes([FromQuery] ClienteQueryParameters parameters)
         {
-            var response = await _clienteService.ObtenerTodosAsync();
+            var response = await _clienteService.ObtenerPaginadosAsync(parameters);
             return Ok(response);
         }
 

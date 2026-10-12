@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SistemaVentasAPI.Data;
 using SistemaVentasAPI.DTOs;
+using SistemaVentasAPI.DTOs.Pagination;
 using SistemaVentasAPI.Exceptions;
 using SistemaVentasAPI.Models;
 using SistemaVentasAPI.Repositories.Interfaces;
@@ -16,8 +18,10 @@ namespace SistemaVentasAPI.Services
     {
         private readonly ILogger<PedidoService> _logger;
         private readonly IUnitOfWork _unitOfWork;
-        public PedidoService(IUnitOfWork unitOfWork, ILogger<PedidoService> logger)
+        private readonly IMapper _mapper;
+        public PedidoService(IUnitOfWork unitOfWork, ILogger<PedidoService> logger, IMapper mapper)
         {
+            this._mapper = mapper;
             this._unitOfWork = unitOfWork;
             this._logger = logger;
         }
@@ -166,7 +170,6 @@ namespace SistemaVentasAPI.Services
                     })
                     .ToList()
             };
-
         }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using SistemaVentasAPI.Services;
 using SistemaVentasAPI.Services.Interfaces;
+using SistemaVentasAPI.DTOs.Pagination;
 
 namespace SistemaVentasAPI.Controllers
 {
@@ -25,9 +26,9 @@ namespace SistemaVentasAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductoResponse>>> GetProductos()
+        public async Task<ActionResult<IEnumerable<ProductoResponse>>> GetProductos([FromQuery] ProductoQueryParameters parameters)
         {
-            var response = await _productoService.ObtenerTodosAsync();
+            var response = await _productoService.ObtenerPaginadosAsync(parameters);
             return Ok(response);
         }
 
